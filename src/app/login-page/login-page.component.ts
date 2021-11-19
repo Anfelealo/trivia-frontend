@@ -1,23 +1,51 @@
-import { Component, OnInit } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { Component, OnInit} from '@angular/core';
+import { Router } from '@angular/router';
 import { UserService } from '../user.service';
+
 
 @Component({
   selector: 'app-login-page',
   templateUrl: './login-page.component.html',
   styleUrls: ['./login-page.component.css']
 })
-export class LoginPageComponent implements OnInit {
+export class LoginPageComponent implements OnInit{
   userService: UserService
-  constructor(userService: UserService) { this.userService = userService }
+  router: Router
+  constructor(userService: UserService, router: Router) {
+    this.userService = userService
+    this.router = router
+  }
 
-  ngOnInit(): void {
+  ngOnInit(): void{
+    const isLogin: boolean = this.userService.checkLoginUser()
+    if (isLogin == true){
+      this.router.navigateByUrl('/game')
+    }
   }
 
   userName = ""
+  userPassword = ""
 
-  onUserNameCreate(){
-    this.userService.createUserName(this.userName)
+  async onUserNameCreate(){
+    if (this.userName == "" || this.userPassword === ""){
+      alert("The username and password fields must not be empty.")
+      return
+    }
+    const loginValidation = await this.userService.createUserName(this.userName, this.userPassword)
+    if(loginValidation == true){
+      this.router.navigateByUrl('/game')  
+    }
+    else{
+      alert("Login failed. Please try again")
+    }
+  }
+
+  isLoggedIn(){
+    const userName = localStorage.getItem("userName")
+    if (userName != null){
+      //this.userService.createUserName(this.userName)
+      this.router.navigateByUrl('/game')
+    }
   }
 
 }
